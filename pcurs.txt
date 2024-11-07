@@ -1,0 +1,141 @@
+-- Create tables
+CREATE TABLE o_rollcall1 (
+    rno INT, 
+    name VARCHAR(20),
+    status VARCHAR(30)
+);
+
+CREATE TABLE n_rollcall1 (
+    rno INT, 
+    name VARCHAR(20),
+    status VARCHAR(30)
+);
+
+-- Insert data into n_rollcall1 table
+INSERT INTO n_rollcall1 VALUES(2, 'Summit', 'Present');
+INSERT INTO n_rollcall1 VALUES(3, 'Ram', 'Present');
+INSERT INTO n_rollcall1 VALUES(6, 'Isha', 'Present');
+
+-- Insert data into o_rollcall1 table
+INSERT INTO o_rollcall1 VALUES(1, 'Anisha', 'Present');
+INSERT INTO o_rollcall1 VALUES(2, 'Summit', 'Present');
+INSERT INTO o_rollcall1 VALUES(3, 'Ram', 'Present');
+INSERT INTO o_rollcall1 VALUES(4, 'Ram', 'Absent');
+INSERT INTO o_rollcall1 VALUES(4, 'Ram', 'Absent');
+INSERT INTO o_rollcall1 VALUES(5, 'Harshal', 'Present');
+
+-- Select data to verify
+SELECT * FROM o_rollcall1;
+SELECT * FROM n_rollcall1;
+
+-- Implicit Cursor Example
+BEGIN
+    -- Update data using implicit cursor
+    UPDATE o_rollcall1 
+    SET status = 'Absent' 
+    WHERE rno = 5;
+
+    -- Output the result
+    IF SQL%FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Updated');
+    END IF;
+    
+    IF SQL%NOTFOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Not updated - not found');
+    END IF;
+    
+    IF SQL%ROWCOUNT > 0 THEN
+        DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT || ' rows updated');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No rows updated');
+    END IF;
+END;
+/
+
+-- Explicit Cursor Example
+DECLARE
+    CURSOR explicit_cur IS 
+        SELECT rno, name, status 
+        FROM o_rollcall1 
+        WHERE status = 'Present';
+        
+    tmp explicit_cur%ROWTYPE;
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Explicit Cursor Demo');
+    
+    OPEN explicit_cur;
+    LOOP
+        EXIT WHEN explicit_cur%NOTFOUND;
+        FETCH explicit_cur INTO tmp;
+        DBMS_OUTPUT.PUT_LINE('ROLLNO: ' || tmp.rno || ' NAME: ' || tmp.name || ' STATUS: ' || tmp.status);
+    END LOOP;
+
+    IF explicit_cur%ROWCOUNT > 0 THEN
+        DBMS_OUTPUT.PUT_LINE(explicit_cur%ROWCOUNT || ' rows found');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No rows found');
+    END IF;
+    
+    CLOSE explicit_cur;
+END;
+/
+
+-- Cursor FOR Loop Example
+SET SERVEROUTPUT ON;
+DECLARE
+    CURSOR for_cur IS 
+        SELECT rno, name, status 
+        FROM o_rollcall1 
+        WHERE status = 'Absent';
+        
+    tmp for_cur%ROWTYPE;
+BEGIN
+    FOR tmp IN for_cur LOOP
+        DBMS_OUTPUT.PUT_LINE('ROLLNO: ' || tmp.rno || ' NAME: ' || tmp.name || ' STATUS: ' || tmp.status);
+    END LOOP;
+END;
+/
+
+-- Parameterized Cursor Example
+DECLARE
+    roll NUMBER;
+    CURSOR param_cur(roll NUMBER) IS 
+        SELECT * FROM o_rollcall1 WHERE rno = roll;
+        
+    tmp param_cur%ROWTYPE;
+BEGIN
+    -- Take roll number as input
+    roll := &roll; -- This will prompt for the roll number
+    
+    FOR tmp IN param_cur(roll) LOOP
+        DBMS_OUTPUT.PUT_LINE('Roll No: ' || tmp.rno);
+        DBMS_OUTPUT.PUT_LINE('Name: ' || tmp.name);
+        DBMS_OUTPUT.PUT_LINE('Status: ' || tmp.status);
+    END LOOP;
+END;
+/
+
+-- MERGE Operation to Merge Data from o_rollcall1 to n_rollcall1
+BEGIN
+    MERGE INTO n_rollcall1 t1
+    USING (SELECT rno, name, status FROM o_rollcall1) t2
+    ON (t1.rno = t2.rno)
+    WHEN NOT MATCHED THEN
+        INSERT (rno, name, status)
+        VALUES (t2.rno, t2.name, t2.status);
+
+    IF SQL%ROWCOUNT > 0 THEN
+        DBMS_OUTPUT.PUT_LINE('Merged ' || SQL%ROWCOUNT || ' rows updated');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No rows updated');
+    END IF;
+
+    IF SQL%NOTFOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No matching rows found for merge');
+    END IF;
+END;
+/
+
+-- Final Data Check
+SELECT * FROM o_rollcall1;
+SELECT * FROM n_rollcall1;

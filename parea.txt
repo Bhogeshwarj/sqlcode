@@ -1,0 +1,71 @@
+
+SET SERVEROUTPUT ON;
+DECLARE
+    radius_var NUMBER;
+    area_var NUMBER;
+    pi NUMBER := 3.14;
+BEGIN
+    -- FOR loop
+    FOR radius_var IN 5 .. 9 LOOP
+        area_var := pi * radius_var * radius_var;
+        dbms_output.put_line('FOR loop - Radius: ' || radius_var || ' Area: ' || area_var);
+    END LOOP;
+END;
+/
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    radius_var NUMBER := 5;
+    area_var NUMBER;
+    pi NUMBER := 3.14;
+BEGIN
+    -- WHILE loop
+    WHILE radius_var <= 9 LOOP
+        area_var := pi * radius_var * radius_var;
+        dbms_output.put_line('WHILE loop - Radius: ' || radius_var || ' Area: ' || area_var);
+        radius_var := radius_var + 1; -- Increment radius_var to avoid infinite loop
+    END LOOP;
+END;
+/
+
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    radius_var NUMBER := 5;
+    area_var NUMBER;
+    pi NUMBER := 3.14;
+BEGIN
+    -- Simple LOOP with EXIT WHEN
+    LOOP
+        area_var := pi * radius_var * radius_var;
+        dbms_output.put_line('LOOP - Radius: ' || radius_var || ' Area: ' || area_var);
+        
+        radius_var := radius_var + 1; -- Increment radius_var
+
+        EXIT WHEN radius_var > 9; -- Exit condition
+    END LOOP;
+END;
+/
+
+
+SET SERVEROUTPUT ON;
+DECLARE
+    radius_var NUMBER;
+    area_var NUMBER;
+    pi NUMBER := 3.14;
+    start_radius NUMBER;
+    end_radius NUMBER;
+BEGIN
+    -- Get user input for the starting and ending radius
+    start_radius := &start_radius;
+    end_radius := &end_radius;
+
+    -- FOR loop
+    FOR radius_var IN start_radius .. end_radius LOOP
+        area_var := pi * radius_var * radius_var;
+        dbms_output.put_line('FOR loop - Radius: ' || radius_var || ' Area: ' || area_var);
+    END LOOP;
+END;
+/

@@ -1,0 +1,70 @@
+-- Drop tables if they exist
+DROP TABLE stud_marks5;
+DROP TABLE result5;
+
+-- Create necessary tables
+CREATE TABLE stud_marks5 (
+    name VARCHAR2(25),
+    total_marks NUMBER
+);
+
+CREATE TABLE result5 (
+    roll_number NUMBER,
+    name VARCHAR2(30),
+    class VARCHAR2(30)
+);
+
+-- Create stored procedure
+CREATE OR REPLACE PROCEDURE procedure_5(roll_no IN NUMBER, name IN VARCHAR2, marks IN NUMBER) AS
+BEGIN
+    IF (marks <= 1500 AND marks >= 990) THEN
+        DBMS_OUTPUT.PUT_LINE('DISTINCTION');
+        INSERT INTO result5 VALUES (roll_no, name, 'DISTINCTION');
+    ELSIF (marks <= 989 AND marks >= 900) THEN
+        DBMS_OUTPUT.PUT_LINE('FIRST CLASS');
+        INSERT INTO result5 VALUES (roll_no, name, 'FIRST CLASS');
+    ELSIF (marks <= 899 AND marks > 825) THEN
+        DBMS_OUTPUT.PUT_LINE('HIGHER SECOND CLASS');
+        INSERT INTO result5 VALUES (roll_no, name, 'HIGHER SECOND CLASS');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('FAIL');
+        INSERT INTO result5 VALUES (roll_no, name, 'FAIL');
+    END IF;
+    INSERT INTO stud_marks5 VALUES (name, marks);
+END procedure_5;
+/
+
+-- Create function to call the stored procedure
+CREATE OR REPLACE FUNCTION func_1(r IN NUMBER, n IN VARCHAR2, m IN NUMBER) RETURN VARCHAR2 AS
+BEGIN
+    procedure_5(r, n, m);
+    RETURN 'SUCCESSFUL';
+END func_1;
+/
+
+-- Anonymous PL/SQL block to test
+DECLARE
+    name_1 VARCHAR2(25);
+    roll_no_1 NUMBER;
+    marks_1 NUMBER;
+    class VARCHAR2(25);
+BEGIN
+    roll_no_1 := &roll_no_1;
+    name_1 := '&name_1';
+    marks_1 := &marks_1;
+
+    -- Calling the function
+    class := func_1(roll_no_1, name_1, marks_1);
+    DBMS_OUTPUT.PUT_LINE(class);
+END;
+/
+
+-- Display the results
+SELECT * FROM result5;
+/
+
+EXEC procedure_5(roll_no, name, marks);
+SELECT * FROM result5;
+
+EXEC procedure_1(123, 'John Doe', 1050);
+EXECUTE function

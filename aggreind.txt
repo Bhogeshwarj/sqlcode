@@ -1,0 +1,102 @@
+use db
+db.createCollection('stud')db.stud.insertMany([
+  {
+    rno: 1,  // Added roll number
+    name: "Pratik",
+    marks: 50,
+    subject: "TOC"
+  },
+  {
+    rno: 2,  // Added roll number
+    name: "Pratik",
+    marks: 30,
+    subject: "DBMS"
+  },
+  {
+    rno: 3,  // Added roll number
+    name: "Pratik",
+    marks: 30,
+    subject: "CNS"
+  },
+  {
+    rno: 4,  // Added roll number
+    name: "Shubham",
+    marks: 45,
+    subject: "TOC"
+  },
+  {
+    rno: 5,  // Added roll number
+    name: "Shubham",
+    marks: 30,
+    subject: "DBMS"
+  },
+  {
+    rno: 6,  // Added roll number
+    name: "Shubham",
+    marks: 40,
+    subject: "CNS"
+  },
+  {
+    rno: 7,  // Added roll number
+    name: "Ram",
+    marks: 40,
+    subject: "TOC"
+  },
+  {
+    rno: 8,  // Added roll number
+    name: "Ram",
+    marks: 50,
+    subject: "DBMS"
+  },
+  {
+    rno: 9,  // Added roll number
+    name: "Ram",
+    marks: 40,
+    subject: "CNS"
+  },
+  {
+    rno: 10,  // Added roll number
+    name: "Sid",
+    marks: 50,
+    subject: "TOC"
+  },
+  {
+    rno: 11,  // Added roll number
+    name: "Sid",
+    marks: 20,
+    subject: "DBMS"
+  },
+  {
+    rno: 12,  // Added roll number
+    name: "Sid",
+    marks: 30,
+    subject: "CNS"
+  }
+]);
+
+db.stud.aggregate([
+  { $group: { _id: '$name', count: { $sum: 1 } } }
+]);
+
+db.stud.aggregate([
+  { $group: { _id: '$name', marksAvg: { $avg: '$marks' } } }
+]);
+
+db.stud.aggregate([
+  { $group: { _id: '$name', marksMax: { $max: '$marks' } } }
+]);
+
+db.stud.aggregate([
+  { $group: { _id: '$name', marksMin: { $min: '$marks' } } }
+]);
+
+db.stud.aggregate([
+  { $match: { marks: { $lte: 30 } } },
+  { $group: { _id: '$name', failInSubject: { $push: '$subject' } } }
+]);
+
+db.stud.aggregate([
+  { $group: { _id: '$name', totalMarks: { $sum: '$marks' } } }
+]);
+
+db.stud.find({rno:11}).explain("executionStats")

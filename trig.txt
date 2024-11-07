@@ -1,0 +1,53 @@
+CREATE TABLE lib_tab05 (
+    book_name VARCHAR2(20),
+    status VARCHAR2(20)
+);
+
+INSERT INTO lib_tab05 VALUES ('Treasure', 'Available');
+INSERT INTO lib_tab05 VALUES ('onepiece', 'Available');
+INSERT INTO lib_tab05 VALUES ('Gita', 'Available');
+INSERT INTO lib_tab05 VALUES ('the path', 'Available');
+
+CREATE TABLE library_audit05 (
+    d DATE,
+    name VARCHAR2(20),
+    old_status VARCHAR2(20),
+    new_status VARCHAR2(20),
+    action VARCHAR2(20)
+);
+
+CREATE OR REPLACE TRIGGER lib_trigger_2
+AFTER UPDATE OR INSERT OR DELETE ON lib_tab05
+FOR EACH ROW
+BEGIN
+    IF UPDATING THEN
+        dbms_output.put_line(:OLD.status);
+        INSERT INTO library_audit05 
+        VALUES (SYSDATE, :OLD.book_name, :OLD.status, :NEW.status, 'UPDATE');
+    ELSIF INSERTING THEN
+        dbms_output.put_line(:NEW.book_name || ' INSERTING');
+        INSERT INTO library_audit05 
+        VALUES (SYSDATE, :NEW.book_name, NULL, :NEW.status, 'INSERT');
+    ELSIF DELETING THEN
+        dbms_output.put_line(:OLD.book_name || ' DELETING');
+        INSERT INTO library_audit05 
+        VALUES (SYSDATE, :OLD.book_name, :OLD.status, NULL, 'DELETE');
+    END IF;
+END;
+/
+
+-- Test the Trigger
+
+UPDATE lib_tab05 SET status = 'Unavailable' WHERE book_name = 'onepiece';
+
+SELECT * FROM lib_tab05;
+
+INSERT INTO lib_tab05 VALUES ('Matter', 'Unavailable');
+
+SELECT * FROM lib_tab05;
+
+DELETE FROM lib_tab05 WHERE book_name = 'Matter';
+
+SELECT * FROM lib_tab05;
+
+SELECT * FROM library_audit05;

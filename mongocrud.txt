@@ -1,0 +1,92 @@
+// Start MongoDB service
+sudo systemctl start mongod
+
+// Open MongoDB shell
+mongosh
+
+// List all databases
+show dbs
+
+// Create or switch to a database named 'db1'
+use db1
+
+// Check current working database
+db
+
+// Drop the current database
+db.dropDatabase()
+
+// Create a collection named 'stud'
+db.createCollection('stud')
+
+// List all collections in the current database
+show collections
+
+// Insert a single document into the 'emp' collection
+db.emp.insertOne({rno:1, name:'Bhavana'})
+
+// Insert multiple documents into the 'emp' collection
+db.emp.insertMany([{rno:1, name:'Bhavana'}, {rno:2, name:'Onkar'}])
+
+// Display all documents from the 'emp' collection
+db.emp.find()
+
+// Insert a document with a date using ISODate
+db.emp.insertOne({rno:15, name:'Ravina', dob: ISODate("2019-09-14")})
+
+// Update a single document in the 'Employee' collection
+db.Employee.updateOne({"Employeeid": 1}, {$set: {"EmployeeName": "Raj"}})
+
+// Update multiple documents in the 'Employee' collection
+db.Employee.updateMany({"branch": "CSE"}, {$set: {"EmployeeName": "NewMartin"}})
+
+// Find a document in 'stud' collection with a specific condition
+db.stud.find({rno:5})
+
+// Find a document in 'stud' collection with a specific condition and display only specified field
+db.stud.find({rno:5}, {name:1})
+
+// Display documents where rno is greater than 2
+db.stud.find({rno: {$gt: 2}})
+
+// Display documents where rno is less than or equal to 2
+db.stud.find({rno: {$lte: 2}})
+
+// Display documents where rno is less than 2
+db.stud.find({rno: {$lt: 2}})
+
+// Display documents where rno is not equal to 2
+db.stud.find({rno: {$ne: 2}})
+
+// Display documents where rno is either 1, 3, or 5
+db.stud.find({rno: {$in: [1, 3, 5]}})
+
+// Sort documents by rno in descending order
+db.stud.find().sort({rno: -1})
+
+// Get distinct values of 'rno' in 'stud' collection
+db.stud.distinct("rno")
+
+// Limit the result set to the first 2 documents
+db.stud.find().limit(2)
+
+// Skip the first 2 documents and display the rest
+db.stud.find().skip(2)
+
+// Find documents where 'name' starts with 'A'
+db.stud.find({name: /^A/})
+
+// Find documents where 'name' ends with 'i'
+db.stud.find({name: /i$/})
+
+// Find documents where 'name' contains the letter 'a'
+db.stud.find({name: /a/})
+
+// Count the total number of documents in 'stud' collection
+db.stud.find().count()
+
+// Count the number of documents where rno is greater than 2
+db.stud.find({rno: {$gt: 2}}).count()
+
+// Remove a document where rno is 4
+db.stud.remove({rno: 4})

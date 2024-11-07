@@ -1,0 +1,101 @@
+from pymongo import MongoClient
+
+def show_all_records(collection):
+    """Fetch and display all records from the collection."""
+    cursor = collection.find()
+    found = False
+    for document in cursor:
+        found = True
+        print(f"ID: {document.get('_id')}, Name: {document.get('Name')}, "
+              f"Age: {document.get('Age')}, Mobile Number: {document.get('Mobile Number')}")
+    if not found:
+        print("No records found.")
+
+def insert_record(collection):
+    """Insert a new record."""
+    name = input("Enter name: ")
+    age = int(input("Enter age: "))
+    mobile_no = input("Enter Mobile Number: ")
+    collection.insert_one({"Name": name, "Age": age, "Mobile Number": mobile_no})
+    print("Record inserted successfully.")
+
+def delete_record(collection):
+    """Delete a record based on name."""
+    name = input("Enter the name of the record to delete: ")
+    result = collection.delete_one({"Name": name})
+    if result.deleted_count > 0:
+        print(f"Record with name '{name}' deleted successfully.")
+    else:
+        print(f"No record found with name '{name}'.")
+
+def update_record(collection):
+    """Update a specific field of a record."""
+    name = input("Enter the name of the record to update: ")
+    record = collection.find_one({"Name": name})
+
+    if record:
+        print("Record found. Enter the new values (press Enter to skip):")
+        new_name = input(f"Enter new name (current: {record['Name']}): ") or record["Name"]
+        new_age = input(f"Enter new age (current: {record['Age']}): ") or record["Age"]
+        new_mobile = input(f"Enter new Mobile Number (current: {record['Mobile Number']}): ") or record["Mobile Number"]
+
+        # Update the record in the collection
+        collection.update_one(
+            {"_id": record["_id"]},
+            {"$set": {"Name": new_name, "Age": int(new_age), "Mobile Number": new_mobile}}
+        )
+        print("Record updated successfully.")
+    else:
+        print(f"No record found with name '{name}'.")
+
+def search_record(collection):
+    """Search for a record by name."""
+    name = input("Enter the name to search for: ")
+    records = collection.find({"Name": {"$regex": name, "$options": "i"}})  # Case-insensitive search
+
+    found = False
+    for record in records:
+        found = True
+        print(f"ID: {record.get('_id')}, Name: {record.get('Name')}, "
+              f"Age: {record.get('Age')}, Mobile Number: {record.get('Mobile Number')}")
+
+    if not found:
+        print(f"No records found with name matching '{name}'.")
+
+def main():
+    # Connect to MongoDB server
+    mongo = MongoClient("localhost", 27017)
+    print("Connected to the database successfully")
+
+    db = mongo["Info"]
+    collection = db["Personal"]
+
+    while True:
+        print("\n--- Menu ---")
+        print("1. Insert a record")
+        print("2. Delete a record")
+        print("3. Update a record")
+        print("4. Show all records")
+        print("5. Search a record")
+        print("6. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            insert_record(collection)
+        elif choice == '2':
+            delete_record(collection)
+        elif choice == '3':
+            update_record(collection)
+        elif choice == '4':
+            show_all_records(collection)
+        elif choice == '5':
+            search_record(collection)
+        elif choice == '6':
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()

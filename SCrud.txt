@@ -1,0 +1,111 @@
+-- Show databases
+SHOW DATABASES;
+
+-- Create a new database
+CREATE DATABASE employee;
+
+-- Use the new database
+USE employee;
+
+-- Create the table emp_details
+CREATE TABLE emp_details (
+    emp_no INT(20),
+    emp_name VARCHAR(30),
+    emp_gender VARCHAR(20),
+    emp_sal INT(30)
+);
+
+-- Show tables in the employee database
+SHOW TABLES;
+
+-- Alter the table to add emp_dept column
+ALTER TABLE emp_details ADD emp_dept VARCHAR(20);
+
+-- Describe the emp_details table structure
+DESC emp_details;
+
+-- Insert data into emp_details table
+INSERT INTO emp_details VALUES (1, 'ram', 'M', 32000, 'designing');
+INSERT INTO emp_details VALUES (2, 'Soham', 'M', 300000, 'designing');
+INSERT INTO emp_details VALUES (3, 'Mohan', 'M', 250000, 'management');
+INSERT INTO emp_details VALUES (4, 'Om', 'M', 400000, 'coding');
+
+-- Create emp_info table as a copy of emp_details with selected columns
+CREATE TABLE emp_info AS SELECT emp_no, emp_name, emp_gender FROM emp_details;
+
+-- Show the content of emp_info table
+SELECT * FROM emp_info;
+
+-- Truncate the emp_info table
+TRUNCATE TABLE emp_info;
+
+-- Show the content of emp_info table
+SELECT * FROM emp_info;
+
+-- Create a view emp_view2 based on emp_details with a filter for emp_dept = 'designing'
+CREATE VIEW emp_view2 AS SELECT * FROM emp_details WHERE emp_dept = 'designing';
+
+-- Show the content of emp_view2
+SELECT * FROM emp_view2;
+
+-- Update the emp_name to 'ram' where the name is 'Om'
+UPDATE emp_details SET emp_name = 'ram' WHERE emp_name = 'Om';
+
+-- Show the content of emp_view2 after update
+SELECT * FROM emp_view2;
+
+-- Show the content of emp_details after update
+SELECT * FROM emp_details;
+
+-- Drop the emp_view2 view
+DROP VIEW emp_view2;
+
+-- Create an index on emp_details table for emp_no and emp_name
+CREATE INDEX emp_ind ON emp_details (emp_no, emp_name);
+
+-- Show the indexes of emp_details table
+SHOW INDEX FROM emp_details;
+
+-- Update emp_gender where emp_name = 'Soham'
+UPDATE emp_details SET emp_gender = 'F' WHERE emp_name = 'Soham';
+
+-- Show the content of emp_details after the update
+SELECT * FROM emp_details;
+
+-- Alter the emp_details table to add emp_joining column with default value
+ALTER TABLE emp_details ADD COLUMN emp_joining DATE DEFAULT '1970-01-01';
+
+-- Show the content of emp_details after adding emp_joining
+SELECT * FROM emp_details;
+
+-- Find the min and max salary
+SELECT MIN(emp_sal) AS min_salary, MAX(emp_sal) AS max_salary FROM emp_details;
+
+-- Show data for emp_name starting with 'o'
+SELECT * FROM emp_details WHERE emp_name LIKE '_o%';
+
+SELECT AVG(emp_sal) AS avg_salary FROM emp_details;
+ELETE FROM emp_details WHERE emp_sal < 50000;
+
+-- Delete all records from the table (but keeps the table structure)
+DELETE FROM emp_details;
+
+-- Delete a record using a subquery
+DELETE FROM emp_details
+WHERE emp_no = (SELECT emp_no FROM emp_details WHERE emp_name = 'John');
+
+
+-- Group by department and count employees in each department
+SELECT emp_dept, COUNT(*) AS num_employees
+FROM emp_details
+GROUP BY emp_dept;
+
+-- Group by department and get the average salary for each department
+SELECT emp_dept, AVG(emp_sal) AS avg_salary
+FROM emp_details
+GROUP BY emp_dept;
+
+-- Group by department and get the max and min salary for each department
+SELECT emp_dept, MAX(emp_sal) AS max_salary, MIN(emp_sal) AS min_salary
+FROM emp_details
+GROUP BY emp_dept;

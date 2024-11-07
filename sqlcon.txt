@@ -1,0 +1,182 @@
+import mysql.connector as mc
+
+# Database connection options
+options = {
+    "host": "localhost",
+    "port":3306,
+    "user": "root",
+    "password": "Akshay@2004",
+    "database": "akshay",
+    
+}
+
+class Connection:
+    def __init__(self, options):
+        try:
+            # Attempt to connect to the MySQL database using the options provided
+            self.client = mc.connect(**options)
+            self.cursor = self.client.cursor()
+            if self.client.is_connected():
+                print("Connected to database successfully!")
+        except mc.Error as err:
+            # Catch any connection errors
+            print(f"Error: {err}")
+            self.client = None
+            self.cursor = None
+    
+    def _check_connection(self):
+        # Check if the connection is valid
+        if self.cursor is None or self.client is None:
+            print("Database connection not established. Please check your connection settings.")
+            return False 
+        return True
+    
+    def list_rows(self):
+        # List all rows from the 'publisher' table
+        if not self._check_connection():
+            return
+        try:
+            self.cursor.execute("SELECT * FROM publisher")
+            results = self.cursor.fetchall()
+            
+            # Debugging: print results to see what is returned
+            print("Results fetched from the database:", results)
+    
+            if not results:
+                print("No data found in the table.")
+                return
+
+            print("bookID\tBook Name\t\tAuthor\t\tprice")
+            for row in results:
+                print(
+                    "{0}\t{1}\t\t\t\t{2}\t\t{3}".format(
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                    )
+                )
+        except mc.Error as err:
+            print(f"Error: {err}")
+
+    def create_row(self):
+        # Add a new row to the 'publisher' table
+        if not self._check_connection():
+            return
+        try:
+            print("\nEnter new book details")
+            book_id = input("Enter book ID: ")
+            bookName = input("Name of book: ")
+            author = input("Name of Author: ")
+            price = float(input("Price of book: "))
+
+            self.cursor.execute(
+                "INSERT INTO publisher(book_id,book_name, author, price) VALUES(%s,%s, %s, %s)",
+                (book_id, bookName, author, price),
+            )
+            self.client.commit()
+
+            print("\nNew book added!")
+        except mc.Error as err:
+            print(f"Error: {err}")
+
+    def delete_row(self):
+        # Delete a row from the 'publisher' table
+        if not self._check_connection():
+            return
+        try:
+            bookID = int(input("\nEnter ID of book to remove: "))
+            self.cursor.execute("DELETE FROM publisher WHERE book_id = %s", (bookID,))
+            self.client.commit()
+            print("\nBook removed successfully!")
+        except mc.Error as err:
+            print(f"Error: {err}")
+
+    def update_row(self):
+        # Update a row in the 'publisher' table
+        if not self._check_connection():
+            return
+        try:
+            bookID = int(input("\nEnter book ID to update: "))
+            price = float(input("Price of book: "))
+            
+            query = "UPDATE publisher SET price = %s WHERE book_id = %s"
+            self.cursor.execute(query, (price, bookID))
+            self.client.commit()
+
+            print("\nBook data updated successfully!")
+        except mc.Error as err:
+            print(f"Error: {err}")
+
+    def search_row(self):
+        # Search for rows by author name
+        if not self._check_connection():
+            return
+        try:
+            authorName = input("Enter name of author: ")
+            self.cursor.execute(
+                "SELECT * FROM publisher WHERE author LIKE %s", ("%"+authorName+"%",)
+            )
+            results = self.cursor.fetchall()
+            print("bookID\tBook Name\t\tAuthor\t\tprice")
+            for row in results:
+                print(
+                    "{0}\t{1}\t\t\t\t{2}\t\t{3}".format(
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                    )
+                )
+        except mc.Error as err:
+            print(f"Error: {err}")
+
+    def close(self):
+        # Close the database connection
+        if self.cursor:
+            self.cursor.close()
+        if self.client:
+            self.client.close()
+
+# Create a Connection object
+client = Connection(options)  # <--- Instantiate the Connection class here
+
+# Main menu for interacting with the library database
+while True:
+    print("\n\t\t\tLibrary\t\t\t")
+    print("1. Show all books")
+    print("2. Add new Book")
+    print("3. Update Book information")
+    print("4. Delete Book information")
+    print("5. Search Book information")
+    print("6. Exit")
+
+    try:
+        ch = int(input("\nEnter option: "))
+
+        if ch == 1:
+            client.list_rows()
+
+        elif ch == 2:
+            client.create_row()
+
+        elif ch == 3:
+            client.update_row()
+
+        elif ch == 4:
+            client.delete_row()
+
+        elif ch == 5:
+            client.search_row()
+
+        elif ch == 6:
+            client.close()
+            print("Thank you!")
+            break
+        else:
+            print("Invalid choice. Please choose a valid option.")
+
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
